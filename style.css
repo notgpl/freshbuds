@@ -1,16 +1,5 @@
 /* ============================================================
-   CANA CATERS & EVENTS — style.css
-   ============================================================
-   CUSTOMISATION GUIDE (search these tokens to edit):
-   --gold           : primary gold accent colour
-   --gold-light     : lighter gold for hover/gradients
-   --bg             : page background
-   --bg-card        : card / surface background
-   --text           : primary text colour
-   --text-muted     : secondary / muted text
-   --header-height  : height of the sticky header
-   font-family      : change "Cormorant Garamond" (headings)
-                      and "Jost" (body) to any Google Font
+   FRESH BUDS CATERERS & EVENTS — style.css
    ============================================================ */
 
 /* ── Custom Properties ── */
@@ -33,7 +22,11 @@
 /* ── Reset & Base ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { scroll-behavior: smooth; font-size: 16px; }
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+  /* CRITICAL: never set overflow:hidden here — it breaks position:fixed */
+}
 
 body {
   background: var(--bg);
@@ -42,6 +35,7 @@ body {
   font-weight: 300;
   line-height: 1.7;
   overflow-x: hidden;
+  /* CRITICAL: do NOT use overflow:hidden on body — breaks fixed children */
 }
 
 img { display: block; width: 100%; object-fit: cover; }
@@ -51,7 +45,12 @@ a { color: inherit; text-decoration: none; }
 /* ── Preloader ── */
 #preloader {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
   z-index: 99999;
   background: #0a0a08;
   display: flex;
@@ -62,6 +61,7 @@ a { color: inherit; text-decoration: none; }
 #preloader.hide {
   opacity: 0;
   visibility: hidden;
+  pointer-events: none;
 }
 .ring-loader {
   position: relative;
@@ -70,6 +70,7 @@ a { color: inherit; text-decoration: none; }
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 .ring {
   position: absolute;
@@ -97,6 +98,8 @@ a { color: inherit; text-decoration: none; }
   color: #C9A94B;
   letter-spacing: 0.05em;
   animation: pulse 1.1s ease-in-out infinite;
+  position: relative;
+  z-index: 1;
 }
 @keyframes spin {
   to { transform: rotate(360deg); }
@@ -107,21 +110,11 @@ a { color: inherit; text-decoration: none; }
 }
 
 @media (max-width: 768px) {
-  .ring-loader {
-    width: 70px;
-    height: 70px;
-  }
-
-  .ring--outer {
-    width: 70px;
-    height: 70px;
-  }
-
-  .ring--inner {
-    width: 45px;
-    height: 45px;
-  }
+  .ring-loader { width: 70px; height: 70px; }
+  .ring--outer { width: 70px; height: 70px; }
+  .ring--inner { width: 45px; height: 45px; }
 }
+
 /* ── Utility ── */
 .container {
   width: min(1220px, 92%);
@@ -247,6 +240,7 @@ a { color: inherit; text-decoration: none; }
   margin-inline: auto;
 }
 
+/* Logo — text-based, no img conflict */
 .logo {
   font-family: 'Cormorant Garamond', serif;
   font-size: 2rem;
@@ -254,6 +248,19 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: 0.12em;
   color: var(--gold);
   flex-shrink: 0;
+  line-height: 1;
+  /* Ensure no img stretching applies */
+  width: auto;
+  display: inline-block;
+}
+
+/* If logo contains an <img>, size it properly without breaking layout */
+.logo img {
+  height: 52px;
+  width: auto;
+  display: inline-block;
+  object-fit: contain;
+  vertical-align: middle;
 }
 
 .logo--footer {
@@ -291,7 +298,6 @@ a { color: inherit; text-decoration: none; }
 
 .nav__link:hover { color: var(--gold); }
 .nav__link:hover::after { width: 100%; }
-
 .nav__link.active { color: var(--gold); }
 .nav__link.active::after { width: 100%; }
 
@@ -305,6 +311,9 @@ a { color: inherit; text-decoration: none; }
   cursor: pointer;
   padding: 4px;
   margin-left: auto;
+  /* Ensure it stays in flow, not clipped */
+  position: relative;
+  z-index: 1001;
 }
 .hamburger span {
   display: block;
@@ -333,6 +342,7 @@ a { color: inherit; text-decoration: none; }
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s, transform 0.3s;
+  z-index: 999;
 }
 .mobile-nav.open {
   display: flex;
@@ -426,26 +436,20 @@ a { color: inherit; text-decoration: none; }
   line-height: 1.05;
   color: #fff;
   margin-bottom: 24px;
+  text-align: center;
 }
 
-.hero__title--italic {
-  font-style: italic;
-  font-weight: 300;
-}
-
-.hero__title--gold {
-  color: var(--gold);
-  font-style: italic;
-}
-
-.hero__title--teal { color: #5bc8d8; font-style: italic; }
-.hero__title--rose { color: #e88fa0; font-style: italic; }
+.hero__title--italic  { font-style: italic; font-weight: 300; }
+.hero__title--gold    { color: var(--gold); font-style: italic; }
+.hero__title--teal    { color: #5bc8d8; font-style: italic; }
+.hero__title--rose    { color: #e88fa0; font-style: italic; }
 
 .hero__sub {
   font-size: clamp(1rem, 2vw, 1.2rem);
   color: rgba(240,236,226,0.75);
   max-width: 520px;
   margin-bottom: 40px;
+  text-align: center;
 }
 
 .hero__actions {
@@ -513,20 +517,10 @@ a { color: inherit; text-decoration: none; }
   visibility: visible;
 }
 
-.hero-slide--1 {
-  background-image: url('Picsart_26-05-03_14-47-55-731.jpg');
-  background-attachment: scroll;
-}
-.hero-slide--2 {
-  background-image: url('Picsart_26-05-03_14-46-59-734.jpg');
-  background-attachment: scroll;
-}
-.hero-slide--3 {
-  background-image: url('Picsart_26-05-03_14-14-24-565.jpg');
-  background-attachment: scroll;
-}
+.hero-slide--1 { background-image: url('Picsart_26-05-03_14-47-55-731.jpg'); }
+.hero-slide--2 { background-image: url('Picsart_26-05-03_14-46-59-734.jpg'); }
+.hero-slide--3 { background-image: url('Picsart_26-05-03_14-14-24-565.jpg'); }
 
-.hero__overlay { position: absolute; inset: 0; }
 .hero__overlay--1 {
   background: linear-gradient(160deg, rgba(10,10,8,0.877) 0%, rgba(10,10,8,0.651) 50%, rgba(10,10,8,0.76) 100%);
 }
@@ -535,12 +529,6 @@ a { color: inherit; text-decoration: none; }
 }
 .hero__overlay--3 {
   background: linear-gradient(160deg, rgba(45,10,20,0.856) 0%, rgba(60,15,30,0.705) 50%, rgba(45,10,20,0.89) 100%);
-}
-
-.logo img {
-  height: 85px;
-  width: auto;
-  display: block;
 }
 
 /* Slide-in animation for content */
@@ -623,7 +611,6 @@ a { color: inherit; text-decoration: none; }
   gap: 40px;
 }
 
-/* ── STAT: number and + sign on the same line ── */
 .stat {
   display: flex;
   flex-direction: column;
@@ -659,7 +646,6 @@ a { color: inherit; text-decoration: none; }
   margin-top: 8px;
 }
 
-/* ── ABOUT IMAGE ── */
 .about__image-frame {
   position: relative;
   border-radius: var(--radius);
@@ -670,6 +656,7 @@ a { color: inherit; text-decoration: none; }
 
 .about__image-frame img {
   height: 100%;
+  width: 100%;
   transition: transform 0.8s ease;
 }
 .about__image-frame:hover img { transform: scale(1.04); }
@@ -704,7 +691,6 @@ a { color: inherit; text-decoration: none; }
    ================================================================ */
 .services { background: var(--bg); }
 
-/* 4 columns for 12 service cards */
 .services__grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -761,7 +747,7 @@ a { color: inherit; text-decoration: none; }
 
 
 /* ================================================================
-   WHY CHOOSE US  —  AUTO-SLIDING CARDS
+   WHY CHOOSE US
    ================================================================ */
 .why-us { background: var(--bg-section); }
 
@@ -835,7 +821,6 @@ a { color: inherit; text-decoration: none; }
   line-height: 1.7;
 }
 
-/* Slider Dots */
 .why-slider__dots {
   display: flex;
   justify-content: center;
@@ -887,6 +872,7 @@ a { color: inherit; text-decoration: none; }
 
 .gallery__item img {
   height: 100%;
+  width: 100%;
   transition: transform 0.7s ease;
 }
 .gallery__item:hover img { transform: scale(1.07); }
@@ -958,7 +944,6 @@ a { color: inherit; text-decoration: none; }
 }
 .contact__map iframe { width: 100%; }
 
-/* Phone link */
 .contact__phone-link {
   display: flex;
   align-items: center;
@@ -1120,8 +1105,9 @@ a { color: inherit; text-decoration: none; }
    ================================================================ */
 .whatsapp-float {
   position: fixed;
-  bottom: 28px; right: 28px;
-  z-index: 999;
+  bottom: 28px;
+  right: 28px;
+  z-index: 9000;
   width: 56px; height: 56px;
   background: linear-gradient(135deg, var(--gold), var(--gold-dark));
   border-radius: 50%;
@@ -1150,8 +1136,9 @@ a { color: inherit; text-decoration: none; }
    ================================================================ */
 .scroll-top {
   position: fixed;
-  bottom: 96px; right: 28px;
-  z-index: 998;
+  bottom: 96px;
+  right: 28px;
+  z-index: 9000;
   width: 46px; height: 46px;
   border-radius: 50%;
   background: var(--bg-card);
@@ -1231,14 +1218,8 @@ a { color: inherit; text-decoration: none; }
 
 @media (max-width: 1024px) {
   .services__grid { grid-template-columns: repeat(2, 1fr); }
-
-  .why-card {
-    flex: 0 0 calc((100% - 24px) / 2);
-  }
-
-  .footer__top-inner {
-    grid-template-columns: 1fr 1fr;
-  }
+  .why-card { flex: 0 0 calc((100% - 24px) / 2); }
+  .footer__top-inner { grid-template-columns: 1fr 1fr; }
 }
 
 @media (max-width: 768px) {
