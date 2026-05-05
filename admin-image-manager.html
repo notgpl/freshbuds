@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fresh Buds — Image Manager (Admin)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold:      #C9A94B;
+      --gold-dark: #a08530;
+      --bg:        #0d0d0b;
+      --surface:   #161614;
+      --surface2:  #1f1f1c;
+      --border:    #2e2e2a;
+      --text:      #f0ede6;
+      --muted:     #888880;
+      --green:     #4caf82;
+      --red:       #e05050;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 0 0 80px;
+    }
+
+    /* ── Top bar ── */
+    .topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .topbar__logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: .12em;
+      color: var(--gold);
+    }
+    .topbar__badge {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: .78rem;
+      color: var(--muted);
+      letter-spacing: .06em;
+    }
+
+    /* ── Layout ── */
+    .wrapper {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Section heading ── */
+    .admin-section {
+      margin-top: 48px;
+    }
+    .admin-section__header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 24px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .admin-section__num {
+      width: 32px; height: 32px;
+      background: var(--gold);
+      color: #0a0a08;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-size: .85rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .admin-section__title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .admin-section__sub {
+      font-size: .82rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .admin-section__count {
+      margin-left: auto;
+      font-size: .78rem;
+      color: var(--muted);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 3px 12px;
+    }
+
+    /* ── Upload slots grid ── */
+    .slots {
+      display: grid;
+      gap: 16px;
+    }
+    .slots--3 { grid-template-columns: repeat(3, 1fr); }
+    .slots--1 { grid-template-columns: 1fr; }
+    .slots--5 { grid-template-columns: repeat(5, 1fr); }
+
+    @media (max-width: 700px) {
+      .slots--3, .slots--5 { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 420px) {
+      .slots--3, .slots--5 { grid-template-columns: 1fr; }
+      .slots--1 { grid-template-columns: 1fr; }
+    }
+
+    /* ── Single upload slot ── */
+    .slot {
+      background: var(--surface);
+      border: 1.5px dashed var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: border-color .25s;
+      cursor: pointer;
+      position: relative;
+    }
+    .slot:hover { border-color: var(--gold); }
+    .slot.has-image { border-style: solid; border-color: var(--gold-dark); }
+
+    .slot__label-bar {
+      background: var(--surface2);
+      padding: 8px 12px;
+      font-size: .72rem;
+      font-weight: 500;
+      letter-spacing: .08em;
+      color: var(--muted);
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .slot__label-bar span.tag {
+      background: rgba(201,169,75,.12);
+      color: var(--gold);
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-size: .68rem;
+    }
+
+    .slot__drop {
+      aspect-ratio: 4/3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 16px;
+    }
+    .slot--about .slot__drop { aspect-ratio: 3/4; }
+
+    .slot__drop input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+
+    .slot__icon {
+      width: 40px; height: 40px;
+      border: 1.5px dashed var(--muted);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted);
+      transition: border-color .2s, color .2s;
+    }
+    .slot:hover .slot__icon { border-color: var(--gold); color: var(--gold); }
+
+    .slot__hint {
+      font-size: .75rem;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .slot__preview {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      position: absolute;
+      inset: 0;
+    }
+
+    .slot__remove {
+      position: absolute;
+      top: 40px; right: 8px;
+      width: 26px; height: 26px;
+      background: rgba(224,80,80,.9);
+      border: none;
+      border-radius: 50%;
+      color: #fff;
+      cursor: pointer;
+      display: none;
+      align-items: center; justify-content: center;
+      font-size: 14px;
+      z-index: 10;
+      transition: transform .15s;
+    }
+    .slot.has-image .slot__remove { display: flex; }
+    .slot__remove:hover { transform: scale(1.1); }
+
+    .slot__caption {
+      padding: 8px 12px;
+      font-size: .72rem;
+      color: var(--muted);
+      text-align: center;
+      background: var(--surface2);
+      border-top: 1px solid var(--border);
+    }
+    .slot.has-image .slot__caption { color: var(--green); }
+
+    /* ── About section special layout ── */
+    .about-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 620px) {
+      .about-layout { grid-template-columns: 1fr; }
+    }
+    .about-note {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      font-size: .82rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .about-note strong { color: var(--text); display: block; margin-bottom: 8px; font-family: 'Syne', sans-serif; }
+    .about-note ul { padding-left: 16px; }
+    .about-note li { margin-bottom: 4px; }
+
+    /* ── Output / Copy area ── */
+    .output-card {
+      margin-top: 48px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .output-card__header {
+      background: var(--surface2);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+    .output-card__title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+    .output-card__actions { display: flex; gap: 10px; }
+
+    .btn-copy {
+      background: var(--gold);
+      color: #0a0a08;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 18px;
+      font-family: 'Syne', sans-serif;
+      font-size: .82rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: background .2s, transform .15s;
+      letter-spacing: .04em;
+    }
+    .btn-copy:hover { background: var(--gold-dark); transform: translateY(-1px); }
+    .btn-copy.copied { background: var(--green); color: #fff; }
+
+    .btn-generate {
+      background: transparent;
+      color: var(--gold);
+      border: 1.5px solid var(--gold);
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-family: 'Syne', sans-serif;
+      font-size: .82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: background .2s;
+    }
+    .btn-generate:hover { background: rgba(201,169,75,.1); }
+
+    .output-card__body {
+      padding: 20px 24px;
+    }
+
+    .code-box {
+      background: #0a0a08;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 18px;
+      font-family: 'Courier New', monospace;
+      font-size: .78rem;
+      color: #b8f5a0;
+      overflow-x: auto;
+      white-space: pre;
+      max-height: 340px;
+      overflow-y: auto;
+      line-height: 1.7;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .output-card__instructions {
+      margin-top: 16px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--gold);
+      border-radius: 10px;
+      padding: 16px 18px;
+    }
+    .output-card__instructions h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: .9rem;
+      color: var(--gold);
+      margin-bottom: 10px;
+    }
+    .output-card__instructions ol {
+      padding-left: 18px;
+      font-size: .82rem;
+      color: var(--muted);
+      line-height: 1.9;
+    }
+    .output-card__instructions code {
+      background: rgba(201,169,75,.12);
+      color: var(--gold);
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-size: .78rem;
+    }
+
+    /* ── Progress bar ── */
+    .progress-bar {
+      background: var(--surface2);
+      border-radius: 20px;
+      height: 6px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+    .progress-bar__fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold-dark), var(--gold));
+      border-radius: 20px;
+      transition: width .4s ease;
+    }
+
+    /* ── Stats strip ── */
+    .stats-strip {
+      display: flex;
+      gap: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-top: 40px;
+    }
+    .stat-item {
+      flex: 1;
+      text-align: center;
+      padding: 16px 8px;
+      border-right: 1px solid var(--border);
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-item__num {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--gold);
+    }
+    .stat-item__label { font-size: .72rem; color: var(--muted); margin-top: 2px; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+      color: #0a0a08;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-family: 'Syne', sans-serif;
+      font-size: .84rem;
+      font-weight: 600;
+      box-shadow: 0 8px 30px rgba(0,0,0,.5);
+      z-index: 9999;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all .35s ease;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+  </style>
+</head>
+<body>
+
+  <!-- ── Top Bar ── -->
+  <div class="topbar">
+    <div class="topbar__logo">FRESH BUDS · IMAGE MANAGER</div>
+    <div class="topbar__badge">ADMIN ONLY · NOT FOR CLIENTS</div>
+  </div>
+
+  <div class="wrapper">
+
+    <!-- ── Stats strip ── -->
+    <div class="stats-strip" style="margin-top:32px;">
+      <div class="stat-item">
+        <div class="stat-item__num" id="statHero">0/3</div>
+        <div class="stat-item__label">Hero Slides</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-item__num" id="statAbout">0/1</div>
+        <div class="stat-item__label">About Photo</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-item__num" id="statGallery">0/5</div>
+        <div class="stat-item__label">Gallery Images</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-item__num" id="statTotal">0/9</div>
+        <div class="stat-item__label">Total Done</div>
+      </div>
+    </div>
+    <div class="progress-bar" style="margin-top:8px;">
+      <div class="progress-bar__fill" id="progressFill" style="width:0%"></div>
+    </div>
+
+
+    <!-- ════════════════════════════════════════
+         SECTION 1 — HERO SLIDER (3 images)
+    ════════════════════════════════════════ -->
+    <div class="admin-section">
+      <div class="admin-section__header">
+        <div class="admin-section__num">1</div>
+        <div>
+          <div class="admin-section__title">Hero Slider — Background Images</div>
+          <div class="admin-section__sub">These are the full-screen background images in the sliding banner at the top of the page</div>
+        </div>
+        <div class="admin-section__count" id="heroCount">0 / 3 uploaded</div>
+      </div>
+
+      <div class="slots slots--3" id="heroSlots">
+
+        <!-- Slot H1 -->
+        <div class="slot" id="slot-h1" onclick="triggerInput('input-h1')">
+          <div class="slot__label-bar">
+            Slide 1 — Home <span class="tag">HERO</span>
+          </div>
+          <div class="slot__drop">
+            <input type="file" id="input-h1" accept="image/*" onchange="handleFile(this,'slot-h1','preview-h1','h1')" onclick="event.stopPropagation()" />
+            <div class="slot__icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </div>
+            <div class="slot__hint">Click or drag image<br/><small>Full-screen backdrop · Slide 1</small></div>
+          </div>
+          <img id="preview-h1" class="slot__preview" style="display:none;" />
+          <button class="slot__remove" onclick="removeFile(event,'slot-h1','preview-h1','h1')">✕</button>
+          <div class="slot__caption" id="cap-h1">No image yet</div>
+        </div>
+
+        <!-- Slot H2 -->
+        <div class="slot" id="slot-h2" onclick="triggerInput('input-h2')">
+          <div class="slot__label-bar">
+            Slide 2 — Event <span class="tag">HERO</span>
+          </div>
+          <div class="slot__drop">
+            <input type="file" id="input-h2" accept="image/*" onchange="handleFile(this,'slot-h2','preview-h2','h2')" onclick="event.stopPropagation()" />
+            <div class="slot__icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </div>
+            <div class="slot__hint">Click or drag image<br/><small>Full-screen backdrop · Slide 2</small></div>
+          </div>
+          <img id="preview-h2" class="slot__preview" style="display:none;" />
+          <button class="slot__remove" onclick="removeFile(event,'slot-h2','preview-h2','h2')">✕</button>
+          <div class="slot__caption" id="cap-h2">No image yet</div>
+        </div>
+
+        <!-- Slot H3 -->
+        <div class="slot" id="slot-h3" onclick="triggerInput('input-h3')">
+          <div class="slot__label-bar">
+            Slide 3 — Food <span class="tag">HERO</span>
+          </div>
+          <div class="slot__drop">
+            <input type="file" id="input-h3" accept="image/*" onchange="handleFile(this,'slot-h3','preview-h3','h3')" onclick="event.stopPropagation()" />
+            <div class="slot__icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </div>
+            <div class="slot__hint">Click or drag image<br/><small>Full-screen backdrop · Slide 3</small></div>
+          </div>
+          <img id="preview-h3" class="slot__preview" style="display:none;" />
+          <button class="slot__remove" onclick="removeFile(event,'slot-h3','preview-h3','h3')">✕</button>
+          <div class="slot__caption" id="cap-h3">No image yet</div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- ════════════════════════════════════════
+         SECTION 2 — ABOUT (1 image)
+    ════════════════════════════════════════ -->
+    <div class="admin-section">
+      <div class="admin-section__header">
+        <div class="admin-section__num">2</div>
+        <div>
+          <div class="admin-section__title">About Section — Team / Setup Photo</div>
+          <div class="admin-section__sub">The portrait-style image shown on the right side of the About section</div>
+        </div>
+        <div class="admin-section__count" id="aboutCount">0 / 1 uploaded</div>
+      </div>
+
+      <div class="about-layout">
+        <div class="slots slots--1">
+          <div class="slot slot--about" id="slot-a1" onclick="triggerInput('input-a1')">
+            <div class="slot__label-bar">
+              About Photo <span class="tag">PORTRAIT</span>
+            </div>
+            <div class="slot__drop" style="aspect-ratio:3/4;">
+              <input type="file" id="input-a1" accept="image/*" onchange="handleFile(this,'slot-a1','preview-a1','a1')" onclick="event.stopPropagation()" />
+              <div class="slot__icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              </div>
+              <div class="slot__hint">Click or drag image<br/><small>Portrait ratio works best</small></div>
+            </div>
+            <img id="preview-a1" class="slot__preview" style="display:none;" />
+            <button class="slot__remove" onclick="removeFile(event,'slot-a1','preview-a1','a1')">✕</button>
+            <div class="slot__caption" id="cap-a1">No image yet</div>
+          </div>
+        </div>
+
+        <div class="about-note">
+          <strong>📸 Tips for the About photo</strong>
+          <ul>
+            <li>Best size: <strong>600 × 750 px</strong> or taller portrait</li>
+            <li>Show your team, a nicely set table, or a decorated stage</li>
+            <li>Avoid very dark or very bright photos — the website overlays a gold badge on the corner</li>
+            <li>JPG or WebP preferred for smaller file size</li>
+            <li>The website already shows a "17+ Years of Excellence" badge on top of this photo</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ════════════════════════════════════════
+         SECTION 3 — GALLERY (5 images)
+    ════════════════════════════════════════ -->
+    <div class="admin-section">
+      <div class="admin-section__header">
+        <div class="admin-section__num">3</div>
+        <div>
+          <div class="admin-section__title">Gallery — Portfolio Images</div>
+          <div class="admin-section__sub">5 photos shown in the "Visual Masterpieces" grid. Image 1 is the large featured photo (double width)</div>
+        </div>
+        <div class="admin-section__count" id="galleryCount">0 / 5 uploaded</div>
+      </div>
+
+      <div class="slots slots--5" id="gallerySlots">
+
+        <!-- G1 — large featured -->
+        <div class="slot" id="slot-g1" onclick="triggerInput('input-g1')" style="grid-column: span 2;">
+          <div class="slot__label-bar">
+            Gallery 1 — FEATURED <span class="tag">LARGE · 2× wide</span>
+          </div>
+          <div class="slot__drop">
+            <input type="file" id="input-g1" accept="image/*" onchange="handleFile(this,'slot-g1','preview-g1','g1')" onclick="event.stopPropagation()" />
+            <div class="slot__icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </div>
+            <div class="slot__hint">Your BEST photo — it takes double the space!<br/><small>Landscape works best · e.g. Grand catering hall</small></div>
+          </div>
+          <img id="preview-g1" class="slot__preview" style="display:none;" />
+          <button class="slot__remove" onclick="removeFile(event,'slot-g1','preview-g1','g1')">✕</button>
+          <div class="slot__caption" id="cap-g1">No image yet</div>
+        </div>
+
+        <!-- G2 -->
+        <div class="slot" id="slot-g2" onclick="triggerInput('input-g2')">
+          <div class="slot__label-bar">Gallery 2 <span class="tag">GALLERY</span></div>
+          <div class="slot__drop">
+            <input type="file" id="input-g2" accept="image/*" onchange="handleFile(this,'slot-g2','preview-g2','g2')" onclick="event.stopPropagation()" />
+            <div class="slot__icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </div>
+            <div class="slot__hint">Click or drag<br/><small>e.g. Stage decor</small></div>
+          </div>
+          <img id="preview-g2" class="slot__preview" style="display:none;" />
+          <button class="slot__remove" onclick="removeFile(event,'slot-g2','preview-g2','g2')">✕</button>
+          <div class="slot__caption" id="cap-g2">No image yet</div>
+        </div>
+
+        <!-- G3 -->
+        <div class="slot" id="slot-g3" onclick="triggerInput('input-g3')">
+          <div class="slot__label-bar">Gallery 3 <span class="tag">GALLERY</span></div>
+          <div class="slot__drop">
+            <input type="file" id="input-g3" accept="image/*" onchange="handleFile(this,'slot-g3','preview-g3','g3')" onclick="event.stopPropagation()" />
+            <div class="slot__icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </div>
+            <div class="slot__hint">Click or drag<br/><small>e.g. Fine dining</small></div>
+          </div>
+          <img id="preview-g3" class="slot__preview" style="display:none;" />
+          <button class="slot__remove" onclick="removeFile(event,'slot-g3','preview-g3','g3')">✕</button>
+          <div class="slot__caption" id="cap-g3">No image yet</div>
+        </div>
+
+        <!-- G4 -->
+        <div class="slot" id="slot-g4" onclick="triggerInput('input-g4')">
+          <div class="slot__label-bar">Gallery 4 <span class="tag">GALLERY</span></div>
+          <div class="slot__drop">
+            <input type="file" id="input-g4" accept="image/*" onchange="handleFile(this,'slot-g4','preview-g4','g4')" onclick="event.stopPropagation()" />
+            <div class="slot__icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </div>
+            <div class="slot__hint">Click or drag<br/><small>e.g. Reception decor</small></div>
+          </div>
+          <img id="preview-g4" class="slot__preview" style="display:none;" />
+          <button class="slot__remove" onclick="removeFile(event,'slot-g4','preview-g4','g4')">✕</button>
+          <div class="slot__caption" id="cap-g4">No image yet</div>
+        </div>
+
+        <!-- G5 -->
+        <div class="slot" id="slot-g5" onclick="triggerInput('input-g5')">
+          <div class="slot__label-bar">Gallery 5 <span class="tag">GALLERY</span></div>
+          <div class="slot__drop">
+            <input type="file" id="input-g5" accept="image/*" onchange="handleFile(this,'slot-g5','preview-g5','g5')" onclick="event.stopPropagation()" />
+            <div class="slot__icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </div>
+            <div class="slot__hint">Click or drag<br/><small>e.g. Room decoration</small></div>
+          </div>
+          <img id="preview-g5" class="slot__preview" style="display:none;" />
+          <button class="slot__remove" onclick="removeFile(event,'slot-g5','preview-g5','g5')">✕</button>
+          <div class="slot__caption" id="cap-g5">No image yet</div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- ════════════════════════════════════════
+         OUTPUT — JSON + Instructions
+    ════════════════════════════════════════ -->
+    <div class="output-card">
+      <div class="output-card__header">
+        <div class="output-card__title">
+          🚀 Generated Code — Paste this into <code style="color:var(--gold);font-size:.82rem;background:rgba(201,169,75,.1);padding:2px 7px;border-radius:4px;">images.js</code>
+        </div>
+        <div class="output-card__actions">
+          <button class="btn-generate" onclick="generateCode()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+            Regenerate
+          </button>
+          <button class="btn-copy" id="copyBtn" onclick="copyCode()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy Code
+          </button>
+        </div>
+      </div>
+
+      <div class="output-card__body">
+        <div class="code-box" id="codeBox">// Upload images above and click "Regenerate" — your code will appear here.</div>
+
+        <div class="output-card__instructions">
+          <h4>📋 How to use this</h4>
+          <ol>
+            <li>Upload all your images above using the slots</li>
+            <li>Click <strong>Regenerate</strong> (or it auto-updates)</li>
+            <li>Click <strong>Copy Code</strong></li>
+            <li>Create a new file called <code>images.js</code> in your website folder</li>
+            <li>Paste the code into <code>images.js</code></li>
+            <li>Add <code>&lt;script src="images.js"&gt;&lt;/script&gt;</code> to your <code>index.html</code> — put it <strong>before</strong> <code>&lt;script src="script.js"&gt;&lt;/script&gt;</code></li>
+            <li>Done! Your website will pick up the images automatically ✅</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /wrapper -->
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ── State ──
+    const imageData = {};
+
+    function triggerInput(id) {
+      document.getElementById(id).click();
+    }
+
+    function handleFile(input, slotId, previewId, key) {
+      const file = input.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = e => {
+        const base64 = e.target.result;
+        imageData[key] = { base64, name: file.name, size: file.size };
+
+        // Show preview
+        const slot    = document.getElementById(slotId);
+        const preview = document.getElementById(previewId);
+        const cap     = document.getElementById('cap-' + key);
+
+        preview.src     = base64;
+        preview.style.display = 'block';
+        slot.classList.add('has-image');
+
+        const kb = (file.size / 1024).toFixed(0);
+        cap.textContent = `✓ ${file.name} (${kb} KB)`;
+
+        updateStats();
+        generateCode();
+        showToast('Image loaded: ' + file.name);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeFile(e, slotId, previewId, key) {
+      e.stopPropagation();
+      delete imageData[key];
+
+      const slot    = document.getElementById(slotId);
+      const preview = document.getElementById(previewId);
+      const cap     = document.getElementById('cap-' + key);
+      const input   = slot.querySelector('input[type="file"]');
+
+      preview.src = '';
+      preview.style.display = 'none';
+      slot.classList.remove('has-image');
+      cap.textContent = 'No image yet';
+      input.value = '';
+
+      updateStats();
+      generateCode();
+    }
+
+    function updateStats() {
+      const hCount = ['h1','h2','h3'].filter(k => imageData[k]).length;
+      const aCount = ['a1'].filter(k => imageData[k]).length;
+      const gCount = ['g1','g2','g3','g4','g5'].filter(k => imageData[k]).length;
+      const total  = hCount + aCount + gCount;
+
+      document.getElementById('statHero').textContent    = hCount + '/3';
+      document.getElementById('statAbout').textContent   = aCount + '/1';
+      document.getElementById('statGallery').textContent = gCount + '/5';
+      document.getElementById('statTotal').textContent   = total  + '/9';
+
+      document.getElementById('heroCount').textContent    = hCount + ' / 3 uploaded';
+      document.getElementById('aboutCount').textContent   = aCount + ' / 1 uploaded';
+      document.getElementById('galleryCount').textContent = gCount + ' / 5 uploaded';
+
+      document.getElementById('progressFill').style.width = Math.round(total / 9 * 100) + '%';
+    }
+
+    function generateCode() {
+      const d = imageData;
+
+      const heroLines = ['h1','h2','h3'].map((k, i) => {
+        const val = d[k] ? `"${d[k].base64}"` : `null /* Slide ${i+1}: upload an image above */`;
+        return `    slide${i+1}: ${val}`;
+      }).join(',\n');
+
+      const aboutLine = d['a1']
+        ? `  about: "${d['a1'].base64}"`
+        : `  about: null /* Upload about image above */`;
+
+      const galleryLines = ['g1','g2','g3','g4','g5'].map((k, i) => {
+        const val = d[k] ? `"${d[k].base64}"` : `null /* Gallery ${i+1}: upload above */`;
+        return `    img${i+1}: ${val}`;
+      }).join(',\n');
+
+      const code =
+`/* ============================================================
+   images.js — generated by Fresh Buds Image Manager
+   Paste this file into your website folder, then add:
+   <script src="images.js"><\/script>
+   in index.html BEFORE script.js
+   ============================================================ */
+
+window.SITE_IMAGES = {
+
+  hero: {
+${heroLines}
+  },
+
+${aboutLine},
+
+  gallery: {
+${galleryLines}
+  }
+
+};
+
+/* ── Auto-apply images to the page ── */
+(function applyImages() {
+  const imgs = window.SITE_IMAGES;
+  if (!imgs) return;
+
+  /* Hero slides */
+  const heroSlides = document.querySelectorAll('.hero-slide');
+  ['slide1','slide2','slide3'].forEach((key, i) => {
+    if (imgs.hero[key] && heroSlides[i]) {
+      heroSlides[i].style.backgroundImage = 'url(' + imgs.hero[key] + ')';
+      heroSlides[i].style.backgroundSize  = 'cover';
+      heroSlides[i].style.backgroundPosition = 'center';
+    }
+  });
+
+  /* About image */
+  const aboutImg = document.querySelector('.about__image img');
+  if (imgs.about && aboutImg) {
+    aboutImg.src = imgs.about;
+  }
+
+  /* Gallery images */
+  const galleryImgs = document.querySelectorAll('.gallery__item img');
+  ['img1','img2','img3','img4','img5'].forEach((key, i) => {
+    if (imgs.gallery[key] && galleryImgs[i]) {
+      galleryImgs[i].src = imgs.gallery[key];
+    }
+  });
+})();`;
+
+      document.getElementById('codeBox').textContent = code;
+    }
+
+    function copyCode() {
+      const code = document.getElementById('codeBox').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.classList.add('copied');
+        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Copied!`;
+        showToast('Code copied! Now paste it into images.js');
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy Code`;
+        }, 3000);
+      });
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => t.classList.remove('show'), 3200);
+    }
+
+    // Init
+    generateCode();
+    updateStats();
+  </script>
+</body>
+</html>
