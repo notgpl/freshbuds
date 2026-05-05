@@ -3,45 +3,52 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fresh Buds Caterers & Events — Premium Catering in Kottayam</title>
+  <title>Fresh Buds Caterers &amp; Events — Premium Catering in Kottayam</title>
   <link rel="stylesheet" href="style.css" />
   <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet" />
 </head>
 <body>
+
+  <!-- ===================== PRELOADER ===================== -->
   <div id="preloader">
     <div class="ring-loader">
       <div class="ring ring--outer"></div>
       <div class="ring ring--inner"></div>
-      <div class="ring-logo">F</div>
+      <span class="ring-logo">F</span>
     </div>
   </div>
 
   <!-- ===================== HEADER ===================== -->
   <header class="header" id="header">
     <div class="header__inner">
+      <!-- Text logo — no <img> tag, avoids the width:100% img rule breaking layout -->
       <a href="#" class="logo">FRESH BUDS</a>
+
       <nav class="nav">
-        <a href="#hero" class="nav__link">Home</a>
-        <a href="#about" class="nav__link">About</a>
+        <a href="#hero"     class="nav__link">Home</a>
+        <a href="#about"    class="nav__link">About</a>
         <a href="#services" class="nav__link">Services</a>
-        <a href="#why-us" class="nav__link">Why Us</a>
-        <a href="#gallery" class="nav__link">Gallery</a>
-        <a href="#contact" class="nav__link">Contact</a>
+        <a href="#why-us"   class="nav__link">Why Us</a>
+        <a href="#gallery"  class="nav__link">Gallery</a>
+        <a href="#contact"  class="nav__link">Contact</a>
       </nav>
+
       <a href="#contact" class="btn btn--outline">Inquire Now</a>
+
       <button class="hamburger" id="hamburger" aria-label="Menu">
         <span></span><span></span><span></span>
       </button>
     </div>
+
     <nav class="mobile-nav" id="mobile-nav">
-      <a href="#hero" class="mobile-nav__link">Home</a>
-      <a href="#about" class="mobile-nav__link">About</a>
+      <a href="#hero"     class="mobile-nav__link">Home</a>
+      <a href="#about"    class="mobile-nav__link">About</a>
       <a href="#services" class="mobile-nav__link">Services</a>
-      <a href="#why-us" class="mobile-nav__link">Why Us</a>
-      <a href="#gallery" class="mobile-nav__link">Gallery</a>
-      <a href="#contact" class="mobile-nav__link">Contact</a>
-      <a href="#contact" class="btn btn--gold mt-1">Inquire Now</a>
+      <a href="#why-us"   class="mobile-nav__link">Why Us</a>
+      <a href="#gallery"  class="mobile-nav__link">Gallery</a>
+      <a href="#contact"  class="mobile-nav__link">Contact</a>
+      <a href="#contact"  class="btn btn--gold mt-1">Inquire Now</a>
     </nav>
   </header>
 
@@ -86,7 +93,7 @@
           <p class="hero__sub">From product launches to award nights — precision execution, every time.</p>
           <div class="hero__actions">
             <a href="#services" class="btn btn--gold">Our Services</a>
-            <a href="#contact" class="btn btn--ghost">Get a Quote</a>
+            <a href="#contact"  class="btn btn--ghost">Get a Quote</a>
           </div>
         </div>
       </div>
@@ -105,12 +112,12 @@
           <p class="hero__sub">Handcrafted menus rooted in flavour, culture and creativity.</p>
           <div class="hero__actions">
             <a href="#gallery" class="btn btn--gold">View Gallery</a>
-            <a href="#about" class="btn btn--ghost">Our Story</a>
+            <a href="#about"   class="btn btn--ghost">Our Story</a>
           </div>
         </div>
       </div>
 
-    </div>
+    </div><!-- /hero-slider -->
 
     <button class="hero-arrow hero-arrow--prev" id="heroPrev" aria-label="Previous slide">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
@@ -121,8 +128,8 @@
 
     <div class="hero-dots" id="heroDots">
       <button class="hero-dot active" data-slide="0" aria-label="Slide 1"></button>
-      <button class="hero-dot" data-slide="1" aria-label="Slide 2"></button>
-      <button class="hero-dot" data-slide="2" aria-label="Slide 3"></button>
+      <button class="hero-dot"        data-slide="1" aria-label="Slide 2"></button>
+      <button class="hero-dot"        data-slide="2" aria-label="Slide 3"></button>
     </div>
   </section>
 
@@ -521,6 +528,8 @@
     </div>
   </footer>
 
+  <!-- ===================== FIXED FLOATING ELEMENTS ===================== -->
+  <!-- These must be direct children of <body>, outside any overflow:hidden containers -->
   <button class="scroll-top" id="scrollTop" aria-label="Scroll to top">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
   </button>
